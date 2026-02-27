@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mastery Lab | Newton's 3rd Law Collision</title>
+    <style>
+        :root { 
+            --overlay: #f0fdf4; 
+            --action: #ef4444;   
+            --reaction: #3b82f6; 
+            --next-step: #059669;
+        }
+        
+        body { 
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: var(--overlay);
+            line-height: 1.8;
+            letter-spacing: 0.12rem;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        .container { max-width: 900px; margin: auto; }
+
+        .chunk-card {
+            background: #fff; border: 5px solid #000; border-radius: 25px;
+            padding: 25px; margin-bottom: 25px; box-shadow: 10px 10px 0px #000;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .chunk-card:active { transform: scale(0.98); }
+        
+        .bio { font-weight: 900; }
+
+        /* The Collision Stage */
+        #collision-stage {
+            height: 150px; border-bottom: 8px solid #64748b;
+            position: relative; margin: 30px 0; background: #fff;
+            border-radius: 20px; overflow: hidden;
+            display: flex; align-items: flex-end;
+        }
+
+        .ball {
+            width: 60px; height: 60px; border-radius: 50%;
+            position: absolute; bottom: 10px; border: 4px solid #000;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: white;
+            transition: left 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+
+        #ballA { background: var(--action); left: 10%; }
+        #ballB { background: var(--reaction); left: 80%; }
+
+        /* Voice Card */
+        .voice-card {
+            border: 5px dashed #000; background: #fff;
+            padding: 25px; border-radius: 25px; margin-top: 30px; text-align: center;
+        }
+
+        #v-prompt { cursor: pointer; padding: 10px; border-radius: 10px; }
+        #v-prompt:hover { background: #f0fdf4; }
+
+        #mic-btn {
+            padding: 15px 30px; font-size: 1.2rem; border-radius: 50px;
+            cursor: pointer; border: 4px solid #000; background: #fff;
+            font-weight: bold;
+        }
+
+        .listening { background: var(--action) !important; color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Navigation */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #fff; border-top: 5px solid #000;
+            padding: 20px; display: flex; justify-content: space-around; align-items: center;
+        }
+
+        .btn-next { 
+            background: var(--next-step); color: white; padding: 15px 35px; 
+            border-radius: 50px; border: 4px solid #000; font-weight: bold; text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <button onclick="setLang('en')">English</button>
+        <button onclick="setLang('hi')">हिन्दी</button>
+        <button onclick="setLang('te')">తెలుగు</button>
+    </div>
+
+    <div class="chunk-card" onclick="speakText(document.getElementById('t-theory').innerText)">
+        <h1 id="t-title">Newton's 3rd Law</h1>
+        <p id="t-theory"><span class="bio">Ev</span>ery <span class="bio">Ac</span>-tion has an <b>Equal</b> and <b>Opposite</b> Reaction.</p>
+        <small>🔊 Tap to listen</small>
+    </div>
+
+    
+
+    <div id="collision-stage">
+        <div id="ballA" class="ball" onclick="speakText('Ball A')">A</div>
+        <div id="ballB" class="ball" onclick="speakText('Ball B')">B</div>
+    </div>
+
+    <div class="chunk-card" style="cursor: default; transform: none;">
+        <button style="width:100%; padding:15px; background:black; color:white; border-radius:15px; cursor:pointer; font-weight: bold;" onclick="runCollision()" id="b-push">COLLIDE BALLS!</button>
+        <button style="width:100%; margin-top:10px; background:none; border:none; text-decoration:underline; cursor:pointer;" onclick="resetSim()" id="b-reset">Reset Balls</button>
+    </div>
+
+    <div class="voice-card">
+        <h3 id="v-title" onclick="speakText(this.innerText)">🎤 Voice Check</h3>
+        <p id="v-prompt" onclick="speakText(this.innerText)">Say: "If I push a wall, the wall pushes me <b>BACK</b>."</p>
+        <button id="mic-btn" onclick="startMic()">🎙️ Start Talking</button>
+        <div id="status-msg" style="margin-top:10px; font-weight:bold;" onclick="speakText(this.innerText)">Click to begin</div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div style="font-weight: bold;" id="t-footer" onclick="speakText(this.innerText)">Ready for the Final Test?</div>
+    <a href="quiz.html" class="btn-next">GO TO FINAL QUIZ ➔</a>
+</div>
+
+<script>
+    const dict = {
+        en: { title: "Newton's 3rd Law", theory: "Every Action has an Equal and Opposite Reaction.", push: "COLLIDE BALLS!", reset: "Reset Balls", vTitle: "🎤 Voice Check", vPrompt: "Say: 'If I push a wall, the wall pushes me BACK.'", footer: "Ready for the Final Test?" },
+        hi: { title: "न्यूटन का तीसरा नियम", theory: "प्रत्येक क्रिया की एक समान और विपरीत प्रतिक्रिया होती है।", push: "गेंदों को टकराएं!", reset: "गेंदों को रीसेट करें", vTitle: "🎤 आवाज की जांच", vPrompt: "बोलें: 'यदि मैं दीवार को धक्का देता हूँ, तो दीवार मुझे वापस धकेलती है।'", footer: "क्या आप टेस्ट के लिए तैयार हैं?" },
+        te: { title: "న్యూటన్ మూడవ నియమం", theory: "ప్రతి చర్యకు సమానమైన మరియు వ్యతిరేక ప్రతిచర్య ఉంటుంది.", push: "బంతులను ఢీకొట్టండి!", reset: "రీసెట్ చేయండి", vTitle: "🎤 వాయిస్ టెస్ట్", vPrompt: "చెప్పండి: 'నేను గోడను నెట్టినప్పుడు, గోడ నన్ను వెనక్కి నెడుతుంది.'", footer: "టెస్ట్ కోసం సిద్ధంగా ఉన్నారా?" }
+    };
+
+    let currentLang = 'en';
+
+    function setLang(lang) {
+        currentLang = lang;
+        const d = dict[lang];
+        document.getElementById('t-title').innerText = d.title;
+        document.getElementById('t-theory').innerText = d.theory;
+        document.getElementById('b-push').innerText = d.push;
+        document.getElementById('b-reset').innerText = d.reset;
+        document.getElementById('v-title').innerText = d.vTitle;
+        document.getElementById('v-prompt').innerText = d.vPrompt;
+        document.getElementById('t-footer').innerText = d.footer;
+    }
+
+    function speakText(t) { 
+        window.speechSynthesis.cancel(); 
+        const msg = new SpeechSynthesisUtterance(t);
+        if(currentLang === 'hi') msg.lang = 'hi-IN';
+        if(currentLang === 'te') msg.lang = 'te-IN';
+        window.speechSynthesis.speak(msg); 
+    }
+
+    function runCollision() {
+        const a = document.getElementById('ballA');
+        const b = document.getElementById('ballB');
+        
+        a.style.left = "42%";
+        b.style.left = "50%";
+        
+        setTimeout(() => {
+            a.style.left = "5%";
+            b.style.left = "85%";
+            const bounceMsg = currentLang === 'en' ? "Action and Reaction! Equal force." : 
+                             (currentLang === 'hi' ? "क्रिया और प्रतिक्रिया! समान बल।" : "చర్య మరియు ప్రతిచర్య! సమాన బలం.");
+            speakText(bounceMsg);
+        }, 650);
+    }
+
+    function resetSim() {
+        const a = document.getElementById('ballA');
+        const b = document.getElementById('ballB');
+        a.style.transition = "none"; b.style.transition = "none";
+        a.style.left = "10%"; b.style.left = "80%";
+        setTimeout(() => { a.style.transition = "left 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67)"; b.style.transition = "left 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67)"; }, 10);
+    }
+
+    // Voice Engine
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = (SpeechRecognition) ? new SpeechRecognition() : null;
+
+    function startMic() {
+        if (!recognition) {
+            alert("Speech not supported in this browser.");
+            return;
+        }
+        const btn = document.getElementById('mic-btn');
+        const status = document.getElementById('status-msg');
+        recognition.lang = currentLang === 'en' ? 'en-US' : (currentLang === 'hi' ? 'hi-IN' : 'te-IN');
+        recognition.start();
+        btn.classList.add('listening');
+        status.innerText = "Listening...";
+        
+        let safety = setTimeout(() => { 
+            recognition.stop(); 
+        }, 10000);
+
+        recognition.onresult = (event) => {
+            clearTimeout(safety);
+            const msg = event.results[0][0].transcript.toLowerCase();
+            // Checking for the keyword 'back' or translations
+            if(msg.includes("back") || msg.includes("वापस") || msg.includes("వెనక్కి")) {
+                status.innerText = "✅ Correct!";
+                speakText("Perfect answer!");
+            } else {
+                status.innerText = "Try again!";
+            }
+        };
+        recognition.onend = () => { btn.classList.remove('listening'); };
+    }
+</script>
+</body>
+</html>

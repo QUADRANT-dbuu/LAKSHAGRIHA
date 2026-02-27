@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mastery Lab | Newton's 1st Law</title>
+    <style>
+        :root { 
+            --overlay: #fff7ed; 
+            --inertia: #f59e0b;
+            --next-step: #2563eb;
+            --text-color: #1e293b;
+        }
+        
+        body { 
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: var(--overlay);
+            line-height: 1.8;
+            letter-spacing: 0.12rem;
+            padding: 20px;
+            padding-bottom: 120px;
+            color: var(--text-color);
+        }
+
+        .container { max-width: 850px; margin: auto; }
+
+        .chunk-card {
+            background: #fff; border: 5px solid #000; border-radius: 25px;
+            padding: 25px; margin-bottom: 25px; box-shadow: 10px 10px 0px #000;
+        }
+        
+        .bio { font-weight: 900; color: #000; }
+
+        /* Space Lab */
+        #space-stage {
+            height: 180px; border: 5px solid #000;
+            position: relative; margin: 30px 0; background: #0f172a;
+            border-radius: 25px; overflow: hidden;
+            display: flex; align-items: center;
+        }
+
+        #puck {
+            width: 60px; height: 60px; background: #38bdf8;
+            position: absolute; left: 10%;
+            border: 4px solid #fff; border-radius: 50%;
+            box-shadow: 0 0 20px #38bdf8;
+            transition: left 4s linear;
+        }
+
+        /* Controls */
+        .panel {
+            background: #fff; border: 5px solid #000; border-radius: 25px;
+            padding: 25px; box-shadow: 8px 8px 0px #000; text-align: center;
+        }
+
+        .btn {
+            padding: 15px 30px; font-size: 1.2rem; border-radius: 50px; 
+            cursor: pointer; border: 4px solid #000; font-weight: bold; width: 45%;
+        }
+        .btn-push { background: #000; color: #fff; }
+        .btn-reset { background: #e2e8f0; }
+
+        .voice-box {
+            border: 4px dashed var(--inertia);
+            padding: 15px; margin-top: 15px; border-radius: 15px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .voice-box:hover { background: #fffbeb; }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #fff; border-top: 5px solid #000;
+            padding: 20px; display: flex; justify-content: space-around; align-items: center;
+        }
+        .btn-next { background: var(--next-step); color: white; padding: 15px 35px; border-radius: 50px; border: 4px solid #000; font-weight: bold; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <button onclick="setLang('en')">English</button>
+        <button onclick="setLang('hi')">हिन्दी</button>
+        <button onclick="setLang('te')">తెలుగు</button>
+    </div>
+
+    <div class="chunk-card">
+        <h1 id="t-title">Newton's 1st Law: In-er-tia</h1>
+        
+        <div class="voice-box" onclick="speakText('theory')">
+            <p id="t-theory">An object at <span class="bio">re</span>-st stays at <span class="bio">re</span>-st. An object in <span class="bio">mo</span>-tion stays in <span class="bio">mo</span>-tion unless a force stops it.</p>
+            <small>🔊 Tap to listen</small>
+        </div>
+
+        <div style="margin-top:20px; border-top: 2px solid #eee; padding-top:15px;">
+            <b id="l-formula">The Rule of Zero:</b>
+            <div style="font-size: 1.8rem; margin: 10px 0;">if total Force = 0 then ch-a-nge in ve-lo-city = 0</div>
+            <p id="t-mathDesc">If total force is Zero, speed does not change!</p>
+        </div>
+    </div>
+
+    
+
+    <div id="space-stage">
+        <div id="puck"></div>
+    </div>
+
+    <div class="panel">
+        <h3 id="t-expTitle">Lab: No Friction Space</h3>
+        <p id="t-expDesc">In deep space, there is no air to stop you. Watch the puck go forever!</p>
+        <div style="display:flex; justify-content: space-around; margin-top:15px;">
+            <button class="btn btn-push" onclick="startMotion()" id="b-push">🚀 PUSH</button>
+            <button class="btn btn-reset" onclick="resetSim()" id="b-reset">🔄 RESET</button>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div style="font-weight: bold;" id="t-footer">Move to Part 2?</div>
+    <a href="home.html" class="btn-next">NEXT: 2nd LAW ➔</a>
+</div>
+
+<script>
+    const dict = {
+        en: { 
+            title: "Newton's 1st Law: In-er-tia", 
+            theory: "An object at rest stays at rest. An object in motion stays in motion unless a force stops it.", 
+            formula: "The Rule of Zero:",
+            mathDesc: "If total force is Zero, speed does not change!",
+            expTitle: "Lab: No Friction Space",
+            expDesc: "In deep space, there is no air to stop you. Watch the puck go forever!",
+            push: "🚀 PUSH", reset: "🔄 RESET", footer: "Move to Part 2?" 
+        },
+        hi: { 
+            title: "न्यूटन का पहला नियम: जड़त्व", 
+            theory: "विराम अवस्था में एक वस्तु विराम अवस्था में ही रहती है। गति में एक वस्तु गति में ही रहती है जब तक कि कोई बल उसे रोक न दे।", 
+            formula: "शून्य का नियम:",
+            mathDesc: "यदि कुल बल शून्य है, तो गति नहीं बदलती!",
+            expTitle: "लैब: घर्षण रहित अंतरिक्ष",
+            expDesc: "अंतरिक्ष में हवा नहीं होती। देखो, यह कभी नहीं रुकेगा!",
+            push: "🚀 धक्का दें", reset: "🔄 रीसेट", footer: "अगले भाग पर जाएं?" 
+        },
+        te: { 
+            title: "న్యూటన్ మొదటి నియమం: జడత్వం", 
+            theory: "విశ్రాంతిలో ఉన్న వస్తువు విశ్రాంతిలోనే ఉంటుంది. కదులుతున్న వస్తువు కదులుతూనే ఉంటుంది, ఏదైనా బలం ఆపకపోతే.", 
+            formula: "సున్నా నియమం:",
+            mathDesc: "మొత్తం బలం సున్నా అయితే, వేగం మారదు!",
+            expTitle: "ల్యాబ్: గాలి లేని అంతరిక్షం",
+            expDesc: "అంతరిక్షంలో గాలి ఉండదు. ఇది ఆగకుండా వెళ్తూనే ఉంటుంది!",
+            push: "🚀 నెట్టండి", reset: "🔄 రీసెట్", footer: "తదుపరి భాగానికి?" 
+        }
+    };
+
+    let currentLang = 'en';
+
+    function setLang(l) {
+        currentLang = l;
+        const d = dict[l];
+        document.getElementById('t-title').innerText = d.title;
+        document.getElementById('t-theory').innerText = d.theory;
+        document.getElementById('l-formula').innerText = d.formula;
+        document.getElementById('t-mathDesc').innerText = d.mathDesc;
+        document.getElementById('t-expTitle').innerText = d.expTitle;
+        document.getElementById('t-expDesc').innerText = d.expDesc;
+        document.getElementById('b-push').innerText = d.push;
+        document.getElementById('b-reset').innerText = d.reset;
+        document.getElementById('t-footer').innerText = d.footer;
+    }
+
+    function startMotion() {
+        const puck = document.getElementById('puck');
+        puck.style.transition = "left 4s linear";
+        puck.style.left = "110%";
+        speakText('expDesc');
+    }
+
+    function resetSim() {
+        const puck = document.getElementById('puck');
+        puck.style.transition = "none";
+        puck.style.left = "10%";
+        window.speechSynthesis.cancel();
+    }
+
+    function speakText(elementId) {
+        window.speechSynthesis.cancel();
+        const text = document.getElementById('t-' + elementId).innerText;
+        const msg = new SpeechSynthesisUtterance(text);
+        if(currentLang === 'hi') msg.lang = 'hi-IN';
+        if(currentLang === 'te') msg.lang = 'te-IN';
+        window.speechSynthesis.speak(msg);
+    }
+</script>
+</body>
+</html>

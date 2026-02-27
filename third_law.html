@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Escape Earth | Multilingual & Reset</title>
+    <style>
+        :root { 
+            --overlay: #f0f9ff; 
+            --earth: #166534;
+            --sky: #38bdf8;
+            --accent: #ef4444;
+        }
+        
+        body { 
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: var(--overlay);
+            line-height: 1.8;
+            letter-spacing: 0.12rem;
+            padding: 20px;
+        }
+
+        .container { max-width: 900px; margin: auto; }
+
+        /* Multilingual Chunk Card */
+        .chunk-card {
+            background: #fff; border: 5px solid #000; border-radius: 25px;
+            padding: 25px; margin-bottom: 20px; box-shadow: 10px 10px 0px #000;
+        }
+        .bio { font-weight: 900; }
+
+        /* The Lab Scene */
+        #scene {
+            height: 350px; background: linear-gradient(var(--sky), #bae6fd);
+            border-radius: 30px 30px 0 0; position: relative;
+            border: 6px solid #000; border-bottom: none; overflow: hidden;
+            display: flex; justify-content: center; align-items: flex-end;
+        }
+
+        #ground {
+            height: 40px; background: var(--earth);
+            border: 6px solid #000; border-radius: 0 0 30px 30px;
+            margin-bottom: 20px;
+        }
+
+        #rocket-container {
+            position: absolute; bottom: 0; display: flex; flex-direction: column;
+            align-items: center; transition: bottom 2s cubic-bezier(0.5, 0, 1, 0.5);
+        }
+
+        #rocket-body {
+            width: 60px; height: 100px; background: #cbd5e1;
+            border: 4px solid #000; border-radius: 50% 50% 10% 10%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; transition: width 0.3s;
+        }
+
+        /* Controls */
+        .panel {
+            background: #fff; border: 5px solid #000; border-radius: 25px;
+            padding: 20px; box-shadow: 10px 10px 0px #000;
+        }
+
+        .lang-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .lang-btn { 
+            padding: 10px 20px; border-radius: 15px; cursor: pointer; 
+            border: 3px solid #000; font-weight: bold; background: #fff;
+        }
+        .lang-btn:hover { background: #eee; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .control-box { border: 3px solid #000; padding: 15px; border-radius: 15px; text-align: center; }
+
+        .btn-group { display: flex; gap: 15px; margin-top: 20px; }
+        .btn {
+            padding: 20px; font-size: 1.5rem; border-radius: 50px; 
+            cursor: pointer; border: 4px solid #000; font-weight: bold; flex: 1;
+        }
+        .btn-launch { background: #000; color: #fff; flex: 2; }
+        .btn-reset { background: #64748b; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="lang-bar">
+        <button class="lang-btn" onclick="setLang('en')">English</button>
+        <button class="lang-btn" onclick="setLang('hi')">हिन्दी</button>
+        <button class="lang-btn" onclick="setLang('te')">తెలుగు</button>
+    </div>
+
+    <div class="chunk-card">
+        <h1 id="t-title"><span class="bio">Es</span>-cape <span class="bio">Ea</span>-rth</h1>
+        <p id="t-desc">
+            <span class="bio">Mo</span>-re <span class="bio">Ma</span>-ss needs <span class="bio">mo</span>-re <span class="bio">Fo</span>-rce!
+        </p>
+    </div>
+
+    
+
+    <div id="scene">
+        <div id="rocket-container">
+            <div id="rocket-body">🚀</div>
+            <div id="fire" style="width:40px; height:0px; background:orange; border-radius:0 0 20px 20px;"></div>
+        </div>
+    </div>
+    <div id="ground"></div>
+
+    <div class="panel">
+        <div class="grid">
+            <div class="control-box" style="background: #e0f2fe;">
+                <label><b id="l-mass">Add Mass</b></label><br>
+                <input type="range" id="mRange" min="100" max="1000" value="200" oninput="update()">
+                <div id="mDisplay" style="font-size:1.5rem; font-weight:900;">200 kg</div>
+            </div>
+
+            <div class="control-box" style="background: #fee2e2;">
+                <label><b id="l-force">Engine Force</b></label><br>
+                <input type="range" id="fRange" min="0" max="15000" value="1000" oninput="update()">
+                <div id="fDisplay" style="font-size:1.5rem; font-weight:900;">1000 N</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-launch" onclick="launch()" id="btn-text">LIFT OFF! 🚀</button>
+            <button class="btn btn-reset" onclick="resetSim()">🔄 RESET</button>
+             <a href="quiz.html" class="btn-next">GET TO THE FINAL QUIZ ➔</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dict = {
+        en: { title: "Escape Earth", desc: "More Mass needs more Force! Overcome gravity to leave the planet.", mass: "Add Mass", force: "Engine Force", btn: "LIFT OFF! 🚀", win: "Orbit Reached!", fail: "Too heavy! Add more force." },
+        hi: { title: "पृथ्वी से पलायन", desc: "द्रव्यमान (Mass) जितना अधिक होगा, बल (Force) उतना ही अधिक चाहिए!", mass: "द्रव्यमान जोड़ें", force: "इंजन का बल", btn: "उड़ान भरें! 🚀", win: "सफलता!", fail: "बहुत भारी! और बल जोड़ें।" },
+        te: { title: "భూమి నుండి ప్రయాణం", desc: "ద్రవ్యరాశి (Mass) పెరిగేకొద్దీ, బలం (Force) కూడా పెరగాలి!", mass: "ద్రవ్యరాశిని పెంచండి", force: "ఇంజిన్ బలం", btn: "ప్రారంభించండి! 🚀", win: "విజయం!", fail: "బరువు ఎక్కువైంది!" }
+    };
+
+    let currentLang = 'en';
+
+    function setLang(lang) {
+        currentLang = lang;
+        const d = dict[lang];
+        document.getElementById('t-title').innerText = d.title;
+        document.getElementById('t-desc').innerText = d.desc;
+        document.getElementById('l-mass').innerText = d.mass;
+        document.getElementById('l-force').innerText = d.force;
+        document.getElementById('btn-text').innerText = d.btn;
+        speak(d.title);
+    }
+
+    function update() {
+        const m = document.getElementById('mRange').value;
+        const f = document.getElementById('fRange').value;
+        const rocket = document.getElementById('rocket-body');
+        document.getElementById('mDisplay').innerText = m + " kg";
+        document.getElementById('fDisplay').innerText = f + " N";
+        rocket.style.width = (50 + m/15) + "px"; // Visual Mass Scaling
+    }
+
+    function launch() {
+        const m = parseFloat(document.getElementById('mRange').value);
+        const f = parseFloat(document.getElementById('fRange').value);
+        const container = document.getElementById('rocket-container');
+        const fire = document.getElementById('fire');
+        
+        const weight = m * 10; // Earth Gravity approx
+        fire.style.height = "60px";
+
+        if (f > weight) {
+            container.style.transition = "bottom 2.5s cubic-bezier(0.5, 0, 1, 0.5)";
+            container.style.bottom = "600px";
+            speak(dict[currentLang].win);
+        } else {
+            container.style.transform = "translateX(5px)";
+            setTimeout(() => container.style.transform = "translateX(-5px)", 100);
+            setTimeout(() => {
+                container.style.transform = "translateX(0)";
+                fire.style.height = "0px";
+                speak(dict[currentLang].fail);
+            }, 500);
+        }
+    }
+
+    function resetSim() {
+        const container = document.getElementById('rocket-container');
+        const fire = document.getElementById('fire');
+        container.style.transition = "none";
+        container.style.bottom = "0";
+        fire.style.height = "0px";
+        document.getElementById('mRange').value = 200;
+        document.getElementById('fRange').value = 1000;
+        update();
+        speak("Reset complete.");
+    }
+
+    function speak(text) {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    }
+</script>
+</body>
+</html>

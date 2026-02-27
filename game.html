@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Newton's 2nd Law | Input Game</title>
+    <style>
+        :root {
+            --moon: #e2e8f0;
+            --thrust: #fbbf24;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: #020617;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* The Game Screen */
+        #stage {
+            width: 350px;
+            height: 450px;
+            background: linear-gradient(to bottom, #000, #1e293b);
+            border: 5px solid #fff;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #lander {
+            width: 50px;
+            height: 50px;
+            background: #3b82f6;
+            border: 3px solid #fff;
+            position: absolute;
+            left: 150px;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        .flame {
+            position: absolute;
+            bottom: -25px;
+            width: 15px;
+            height: 25px;
+            background: var(--thrust);
+            border-radius: 50%;
+            filter: blur(4px);
+            display: none;
+        }
+
+        /* Input Panel */
+        .controls {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 20px;
+            width: 350px;
+            border: 3px solid #334155;
+        }
+
+        .input-group { margin-bottom: 15px; }
+        
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #94a3b8; }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-start { background: #22c55e; color: white; }
+        .btn-thrust { background: #ef4444; color: white; margin-top: 10px; display: none; }
+
+        #feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 onclick="speak(this.innerText)">Newton's Lander: You Set the Rules!</h2>
+
+    <div id="stage">
+        <div id="lander">
+            <span id="display-m">?</span>
+            <div id="flame" class="flame"></div>
+        </div>
+        
+        <div id="feedback">
+            <h2 id="status"></h2>
+            <p id="desc"></p>
+            <button onclick="location.reload()" style="background: white; color: black;">RESTART</button>
+        </div>
+    </div>
+
+    <div class="controls" id="setup-panel">
+        <div class="input-group">
+            <label onclick="speak(this.innerText)">1. Set Cargo Mass (kg):</label>
+            <input type="number" id="input-m" value="10" min="5" max="50">
+        </div>
+        <div class="input-group">
+            <label onclick="speak(this.innerText)">2. Set Thruster Force (Newtons):</label>
+            <input type="number" id="input-f" value="100" min="10" max="500">
+        </div>
+        <button class="btn-start" onclick="initGame()">LIFT OFF 🚀</button>
+    </div>
+
+    <button id="thrust-btn" class="btn-thrust" onmousedown="applyForce()" onmouseup="cutForce()" ontouchstart="applyForce()" ontouchend="cutForce()">
+        HOLD TO BURN FUEL!
+    </button>
+<div id="next-page-nav" style="display: none; margin-top: 20px; text-align: center;">
+    <p style="color: #94a3b8;" onclick="speak(this.innerText)">Great job, Pilot! Ready for the Final Quiz?</p>
+    <a href="lesson.html" style="
+        display: inline-block;
+        background: #3b82f6;
+        color: white;
+        text-decoration: none;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-weight: bold;
+        border: 3px solid white;
+    ">Continue to Third Law➔</a>
+</div>
+<script>
+    let mass, force, velocity = 0, posY = 0, gravity = 0.12; // Slightly lower gravity for fairness
+    let isMoving = false, isThrusting = false;
+
+    function speak(t) {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(t));
+    }
+
+    function initGame() {
+        mass = parseFloat(document.getElementById('input-m').value);
+        force = parseFloat(document.getElementById('input-f').value);
+        
+        // Reset variables for a fresh start
+        velocity = 0;
+        posY = 0;
+        
+        document.getElementById('display-m').innerText = mass + "kg";
+        document.getElementById('setup-panel').style.display = 'none';
+        document.getElementById('thrust-btn').style.display = 'block';
+        
+        isMoving = true;
+        speak("Descent started. Use your engine to fight gravity.");
+        gameLoop();
+    }
+
+    function applyForce() { isThrusting = true; document.getElementById('flame').style.display = 'block'; }
+    function cutForce() { isThrusting = false; document.getElementById('flame').style.display = 'none'; }
+
+    function gameLoop() {
+        if (!isMoving) return;
+
+        // --- NEW PHYSICS MATH ---
+        // 1. Calculate Engine Acceleration: a = F / m
+        // We scale the force so the numbers (100-500) feel powerful
+        let engineAccel = isThrusting ? (force / (mass * 50)) : 0; 
+
+        // 2. Net Acceleration = Gravity (down) - Engine (up)
+        let netAcceleration = gravity - engineAccel;
+
+        // 3. Update Velocity and Position
+        velocity += netAcceleration;
+        posY += velocity;
+
+        const lander = document.getElementById('lander');
+        lander.style.top = posY + "px";
+
+        // Landing Floor
+        if (posY >= 390) {
+            posY = 390;
+            isMoving = false;
+            checkLanding();
+        }
+
+        if (isMoving) requestAnimationFrame(gameLoop);
+    }
+
+    function checkLanding() {
+        const status = document.getElementById('status');
+        const desc = document.getElementById('desc');
+        document.getElementById('feedback').style.display = 'block';
+
+        // Speed check: If velocity is low (soft touch), you win!
+        if (velocity < 2.0) {
+            status.innerText = "SUCCESS! 🏆";
+            status.style.color = "#22c55e";
+            desc.innerText = `Perfect! You used force = ${force}  to cancel out the gravity.`;
+            speak("Success! You landed softly.");
+            document.getElementById('next-page-nav').style.display = 'block';
+        } else {
+            status.innerText = "CRASH! 💥";
+            status.style.color = "#ef4444";
+            desc.innerText = "Crash speed: " + velocity.toFixed(1) + ". Newton says: You needed more Force or less Mass!";
+            speak("You crashed. Try a stronger engine.");
+        }
+
+        
+    }
+</script>
+</body>
+</html>
