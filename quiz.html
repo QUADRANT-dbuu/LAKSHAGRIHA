@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laws of Motion | Reading Challenge</title>
+    <style>
+        :root { --p: #059669; --s: #10b981; --bg: #f0fdf4; --dark: #064e3b; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--dark); padding: 20px; line-height: 1.6; }
+        .quiz-card { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        
+        .controls { display: flex; justify-content: space-between; margin-bottom: 20px; padding: 10px; background: #f8fafc; border-radius: 12px; }
+        
+        /* Reading Scaffolding */
+        .story-box { background: #ecfdf5; border-left: 6px solid var(--p); padding: 20px; margin-bottom: 25px; border-radius: 0 15px 15px 0; }
+        .highlight { font-weight: bold; color: var(--p); text-decoration: underline; cursor: pointer; }
+
+        /* Game Elements */
+        .option-btn { width: 100%; text-align: left; padding: 15px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; transition: 0.3s; font-size: 1rem; }
+        .option-btn:hover { border-color: var(--p); background: #f0fdf4; }
+        .correct { background: #dcfce7 !important; border-color: var(--p) !important; font-weight: bold; }
+        .wrong { background: #fee2e2 !important; border-color: #ef4444 !important; }
+
+        .progress-bar { height: 10px; background: #e2e8f0; border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
+        #progress-fill { height: 100%; background: var(--p); width: 0%; transition: 0.5s; }
+        
+        #next-btn { background: var(--p); color: white; border: none; padding: 15px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-card">
+    <div class="controls">
+        <select id="langSelect" onchange="changeLang()">
+            <option value="en">English</option>
+            <option value="hi">Hindi (हिन्दी)</option>
+            <option value="te">Telugu (తెలుగు)</option>
+            <option value="bn">Bengali (বাংলা)</option>
+        </select>
+        <button onclick="readStory()" style="border:none; background:none; cursor:pointer; font-size: 1.2rem;">🔊 Listen</button>
+    </div>
+
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+
+    <div class="story-box">
+        <h3 id="story-title">Level 1: The Bullock Cart Dilemma</h3>
+        <p id="story-text">
+            Ravi is trying to push a heavy bullock cart. At first, the cart stays <span class="highlight">at rest</span>. 
+            Isaac Newton says that the cart will not move unless Ravi applies an <span class="highlight">unbalanced force</span>. 
+            This is the First Law of Motion, also known as <span class="highlight">Inertia</span>.
+        </p>
+    </div>
+
+    
+
+    <div id="quiz-area">
+        <h4 id="question-text">According to the text, why did the cart stay still at first?</h4>
+        <div id="options-container">
+            <button class="option-btn" onclick="checkAnswer(this, false)">Because Ravi is tired.</button>
+            <button class="option-btn" onclick="checkAnswer(this, true)">Because of Inertia (staying at rest).</button>
+            <button class="option-btn" onclick="checkAnswer(this, false)">Because the cart has wheels.</button>
+        </div>
+    </div>
+
+    <button id="next-btn" onclick="nextLevel()">Next Challenge: Second Law ➔</button>
+</div>
+
+<script>
+    const data = {
+        en: {
+            title: "Level 1: The Bullock Cart Dilemma",
+            text: "Ravi is trying to push a heavy bullock cart. At first, the cart stays at rest. Isaac Newton says that the cart will not move unless Ravi applies an unbalanced force. This is the First Law of Motion, also known as Inertia.",
+            q: "According to the text, why did the cart stay still at first?",
+            opts: ["Because Ravi is tired.", "Because of Inertia (staying at rest).", "Because the cart has wheels."]
+        },
+        hi: {
+            title: "स्तर 1: बैलगाड़ी की दुविधा",
+            text: "रवि एक भारी बैलगाड़ी को धक्का देने की कोशिश कर रहा है। पहले तो गाड़ी रुकी रहती है। आइजैक न्यूटन कहते हैं कि गाड़ी तब तक नहीं चलेगी जब तक कि रवि उस पर असंतुलित बल न लगाए। यह गति का पहला नियम है, जिसे जड़त्व (Inertia) के रूप में भी जाना जाता है।",
+            q: "लेख के अनुसार, गाड़ी पहले स्थिर क्यों रही?",
+            opts: ["क्योंकि रवि थक गया है।", "जड़त्व (Inertia) के कारण।", "क्योंकि गाड़ी में पहिए हैं।"]
+        },
+        te: {
+            title: "స్థాయి 1: ఎడ్ల బండి సమస్య",
+            text: "రవి ఒక భారీ ఎడ్ల బండిని నెట్టడానికి ప్రయత్నిస్తున్నాడు. మొదట, బండి నిశ్చల స్థితిలో ఉంటుంది. అసమతుల్య బలాన్ని ప్రయోగించనంత వరకు బండి కదలదని ఐజాక్ న్యూటన్ చెప్పారు. ఇది మొదటి గమన నియమం, దీనిని జడత్వం (Inertia) అని కూడా పిలుస్తారు.",
+            q: "పాఠం ప్రకారం, బండి మొదట ఎందుకు కదలకుండా ఉంది?",
+            opts: ["రవి అలసిపోయినందున.", "జడత్వం (Inertia) వల్ల.", "బండికి చక్రాలు ఉన్నందున."]
+        }
+    };
+
+    function changeLang() {
+        const lang = document.getElementById('langSelect').value;
+        const content = data[lang];
+        document.getElementById('story-title').innerText = content.title;
+        document.getElementById('story-text').innerText = content.text;
+        document.getElementById('question-text').innerText = content.q;
+        
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach((btn, i) => {
+            btn.innerText = content.opts[i];
+            btn.className = "option-btn"; // Reset colors
+        });
+        document.getElementById('next-btn').style.display = "none";
+    }
+
+    function checkAnswer(btn, isCorrect) {
+        if(isCorrect) {
+            btn.classList.add('correct');
+            document.getElementById('progress-fill').style.width = "100%";
+            document.getElementById('next-btn').style.display = "block";
+            confettiEffect();
+        } else {
+            btn.classList.add('wrong');
+            alert("Oops! Read the story again. Look for the word 'Inertia'.");
+        }
+    }
+
+    function readStory() {
+        const text = document.getElementById('story-text').innerText;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = document.getElementById('langSelect').value;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function nextLevel() {
+        alert("Loading Second Law of Motion: F = ma...");
+        // In your real app, this would link to LawsOfMotion_Part2.html
+    }
+
+    function confettiEffect() {
+        // Simple visual reward
+        document.querySelector('.quiz-card').style.borderColor = "#059669";
+    }
+</script>
+</body>
+</html>
