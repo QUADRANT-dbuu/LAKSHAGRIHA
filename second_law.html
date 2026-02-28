@@ -2,252 +2,168 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Multisensory Lab | Newton's 2nd Law</title>
+    <title>Inertia Lab | Pizza Delivery</title>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    
     <style>
         :root { 
-            --overlay: #fdfcf0; 
-            --force-color: #ff4747;
-            --mass-color: #2563eb;
-            --accel-color: #059669;
+            --car: #3b82f6;
+            --pizza: #fbbf24;
+            --road: #1e293b;
         }
         
         body { 
             font-family: 'Comic Sans MS', sans-serif;
-            background-color: var(--overlay);
-            line-height: 1.8;
-            letter-spacing: 0.12rem;
+            background-color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
-            padding-bottom: 120px;
         }
 
-        .container { max-width: 850px; margin: auto; }
+        #google_translate_element { margin-bottom: 20px; }
 
-        .chunk-card {
-            background: #fff; border: 5px solid #000; border-radius: 25px;
-            padding: 25px; margin-bottom: 25px; box-shadow: 10px 10px 0px #000;
+        .theory-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            border-bottom: 8px solid var(--car);
+            max-width: 500px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* Interactive Text Cursor */
-        h1, h2, h3, p, b, small, label, .stat-box {
+        /* The Animation Stage */
+        #stage {
+            width: 550px;
+            height: 150px;
+            background: #fff;
+            border: 4px solid #000;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        #car {
+            width: 140px;
+            height: 60px;
+            background: var(--car);
+            border: 3px solid #000;
+            border-radius: 10px 30px 5px 5px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            transition: left 0.8s ease-in-out;
+        }
+
+        #pizza-box {
+            width: 50px;
+            height: 10px;
+            background: var(--pizza);
+            border: 2px solid #b45309;
+            position: absolute;
+            top: -15px;
+            left: 40px;
+            transition: left 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .wheel {
+            width: 25px;
+            height: 25px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -12px;
+        }
+
+        .controls { margin-top: 25px; display: flex; gap: 15px; }
+
+        button {
+            padding: 12px 25px;
+            font-weight: bold;
+            border-radius: 10px;
+            border: 2px solid #000;
             cursor: pointer;
-            transition: background 0.2s;
-            border-radius: 8px;
         }
-        h1:hover, h2:hover, h3:hover, p:hover, b:hover, label:hover {
-            background: rgba(0,0,0,0.05);
-        }
-
-        .formula-box {
-            font-size: 2.5rem; text-align: center; margin: 20px 0;
-            padding: 15px; background: #f8fafc; border: 3px dashed #000; border-radius: 15px;
-        }
-
-        .f-text { color: var(--force-color); font-weight: 900; }
-        .m-text { color: var(--mass-color); font-weight: 900; }
-        .a-text { color: var(--accel-color); font-weight: 900; }
-
-        .dashboard {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background: #fff; border: 4px solid #000; border-radius: 15px;
-            padding: 15px; text-align: center;
-        }
-
-        #lab {
-            height: 120px; border-bottom: 8px solid #000;
-            position: relative; margin: 40px 0; overflow: hidden; background: #fff;
-        }
-
-        #object {
-            width: 80px; height: 80px; background: var(--mass-color);
-            position: absolute; bottom: 0; left: 0; border: 4px solid #000;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; border-radius: 12px; color: white;
-            transition: left 0.1s;
-        }
-
-        .panel {
-            background: #fff; border: 5px solid #000; border-radius: 25px;
-            padding: 25px; box-shadow: 8px 8px 0px #000;
-        }
-
-        .btn-group { display: flex; gap: 15px; margin-top: 20px; }
-        .btn {
-            padding: 15px 30px; font-size: 1.2rem; border-radius: 50px; 
-            cursor: pointer; border: 4px solid #000; font-weight: bold; flex: 1;
-        }
-        .btn-push { background: #000; color: #fff; }
-        .btn-reset { background: #e2e8f0; }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #fff; border-top: 5px solid #000;
-            padding: 20px; display: flex; justify-content: space-around; align-items: center;
-        }
-        .btn-next { background: var(--mass-color); color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; border: 3px solid #000; font-weight: bold;}
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div style="margin-bottom: 15px; text-align: center;">
-        <button onclick="setLang('en')" style="cursor:pointer">English</button>
-        <button onclick="setLang('hi')" style="cursor:pointer">हिन्दी</button>
-        <button onclick="setLang('te')" style="cursor:pointer">తెలుగు</button>
-    </div>
+    <div id="google_translate_element"></div>
 
-    <div class="chunk-card">
-        <h1 id="t-title" onclick="speakThis(this)">Newton's 2nd Law: The Math</h1>
-        
-        <div class="formula-box" onclick="speakText('Force equals mass times acceleration')">
-            <span class="f-text">F</span> = <span class="m-text">m</span> × <span class="a-text">a</span>
-        </div>
-
-        <p id="t-theory" onclick="speakThis(this)">
-            Newton found that Acceleration happens when a Force acts on a Mass. 
-            The more mass an object has, the more force you need to accelerate it!
-        </p>
-        
-        <div id="extra-theory" style="background: #f0fdf4; padding: 15px; border-radius: 15px; border-left: 10px solid var(--accel-color);" onclick="speakThis(this)">
-            <b id="t-key">Key Idea:</b> <span id="t-keyDesc">If you double the Force, you double the Acceleration. But if you double the Mass, the Acceleration drops by half!</span>
-        </div>
+    <div class="theory-card" onclick="speakText(this.innerText)">
+        <h2>The "Lazy" Pizza Box</h2>
+        <p>A pizza box is **lazy**. If it is moving, it wants to **keep moving**. If the car stops, the pizza keeps going until it hits the floor!</p>
     </div>
 
     
 
-    <div class="dashboard">
-        <div class="stat-box" style="border-color: var(--force-color);" onclick="speakThis(this)">
-            <small>🔴 FORCE</small><br>
-            <b id="fVal" style="font-size: 1.5rem;">50 N</b>
+    <div id="stage">
+        <div id="car">
+            <div id="pizza-box"></div>
+            <div class="wheel" style="left: 15px;"></div>
+            <div class="wheel" style="right: 15px;"></div>
         </div>
-        <div class="stat-box" style="border-color: var(--mass-color);" onclick="speakThis(this)">
-            <small>🔵 MASS</small><br>
-            <b id="mVal" style="font-size: 1.5rem;">10 kg</b>
-        </div>
-        <div class="stat-box" style="border-color: var(--accel-color);" onclick="speakThis(this)">
-            <small>🟢 ACCELERATION</small><br>
-            <b id="aVal" style="font-size: 1.5rem; color: var(--accel-color);">5 m/s²</b>
-        </div>
+        <div style="width: 100%; height: 20px; background: var(--road);"></div>
     </div>
 
-    <div id="lab">
-        <div id="object" onclick="speakText(this.innerText)">10 kg</div>
+    <div class="controls">
+        <button style="background: #22c55e; color: white;" onclick="drive()">1. DRIVE FAST ➔</button>
+        <button style="background: #ef4444; color: white;" onclick="slamBrakes()">2. SLAM BRAKES! 🛑</button>
+        <button style="background: #e2e8f0;" onclick="resetSim()">🔄 RESET</button>
     </div>
 
-    <div class="panel">
-        <label onclick="speakThis(this)"><b id="l-f">Adjust Push (Force):</b></label>
-        <input type="range" id="fRange" min="10" max="500" value="50" style="width:100%; margin:10px 0;" oninput="update()">
-        
-        <label onclick="speakThis(this)"><b id="l-m">Adjust Weight (Mass):</b></label>
-        <input type="range" id="mRange" min="5" max="50" value="10" style="width:100%; margin:10px 0;" oninput="update()">
-
-        <div class="btn-group">
-            <button class="btn btn-push" onclick="runSim()" id="b-push">🚀 PUSH!</button>
-            <button class="btn btn-reset" onclick="resetSim()" id="b-reset">🔄 RESET</button>
-        </div>
+    <div style="margin-top: 30px;">
+        <a href="second_law.html" style="text-decoration: none; color: #3b82f6; font-weight: bold;">Next: The Heavy Rocket (2nd Law) ➔</a>
     </div>
-</div>
-
-<div class="bottom-nav">
-    <div style="font-weight: bold;" id="t-footer" onclick="speakThis(this)">Ready to move to Part 3?</div>
-    <a href="lesson.html" class="btn-next">GO TO PART 3 ➔</a>
-</div>
 
 <script>
-    const dict = {
-        en: { 
-            title: "Newton's 2nd Law: The Math",
-            theory: "Newton found that Acceleration happens when a Force acts on a Mass. The more mass an object has, the more force you need to accelerate it!",
-            key: "Key Idea:",
-            keyDesc: "If you double the Force, you double the Acceleration. But if you double the Mass, the Acceleration drops by half!",
-            lf: "Adjust Push (Force):", lm: "Adjust Weight (Mass):", push: "🚀 PUSH!", reset: "🔄 RESET", footer: "Ready to move to Part 3?" 
-        },
-        hi: { 
-            title: "न्यूटन का दूसरा नियम: गणित",
-            theory: "न्यूटन ने पाया कि जब किसी द्रव्यमान (Mass) पर बल (Force) लगता है, तो त्वरण (Acceleration) पैदा होता है।",
-            key: "मुख्य विचार:",
-            keyDesc: "बल को दोगुना करें = त्वरण दोगुना होगा। वजन को दोगुना करें = त्वरण आधा हो जाएगा!",
-            lf: "धक्का देने वाला बल सेट करें:", lm: "वस्तु का वजन सेट करें:", push: "🚀 धक्का दें!", reset: "🔄 रीसेट करें", footer: "क्या आप भाग 3 पर जाना चाहते हैं?" 
-        },
-        te: { 
-            title: "న్యూటన్ రెండవ నియమం: గణితం",
-            theory: "ద్రవ్యరాశిపై (Mass) బలం (Force) పనిచేసినప్పుడు త్వరణం (Acceleration) వస్తుందని న్యూటన్ కనుగొన్నారు.",
-            key: "ముఖ్య ఆలోచన:",
-            keyDesc: "బలాన్ని రెట్టింపు చేస్తే = త్వరణం రెట్టింపు అవుతుంది. బరువును రెట్టింపు చేస్తే = త్వరణం సగం తగ్గుతుంది!",
-            lf: "బలాన్ని సర్దుబాటు చేయండి:", lm: "బరువును సర్దుబాటు చేయండి:", push: "🚀 నెట్టండి!", reset: "🔄 రీసెట్", footer: "పార్ట్ 3 కి వెళ్దామా?" 
-        }
-    };
-
-    let currentLang = 'en';
-
-    function setLang(lang) {
-        currentLang = lang;
-        const d = dict[lang];
-        document.getElementById('t-title').innerText = d.title;
-        document.getElementById('t-theory').innerText = d.theory;
-        document.getElementById('t-key').innerText = d.key;
-        document.getElementById('t-keyDesc').innerText = d.keyDesc;
-        document.getElementById('l-f').innerText = d.lf;
-        document.getElementById('l-m').innerText = d.lm;
-        document.getElementById('b-push').innerText = d.push;
-        document.getElementById('b-reset').innerText = d.reset;
-        document.getElementById('t-footer').innerText = d.footer;
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'hi,te,en,ta,bn,mr',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
     }
 
-    // New Global Speech Function
-    function speakThis(element) {
-        speakText(element.innerText);
+    const car = document.getElementById('car');
+    const pizza = document.getElementById('pizza-box');
+
+    function drive() {
+        car.style.left = "300px";
+        speakText("The car is moving. The pizza is moving too.");
     }
 
-    function speakText(text) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        if (currentLang === 'hi') msg.lang = 'hi-IN';
-        if (currentLang === 'te') msg.lang = 'te-IN';
-        window.speechSynthesis.speak(msg);
-    }
-
-    function update() {
-        const f = document.getElementById('fRange').value;
-        const m = document.getElementById('mRange').value;
-        const a = (f / m).toFixed(1);
-
-        document.getElementById('fVal').innerText = f + " N";
-        document.getElementById('mVal').innerText = m + " kg";
-        document.getElementById('aVal').innerText = a + " m/s²";
-
-        const obj = document.getElementById('object');
-        obj.innerText = m + " kg";
-        obj.style.width = (60 + m*1) + "px"; 
-        obj.style.height = (60 + m*1) + "px";
-    }
-
-    function runSim() {
-        const f = document.getElementById('fRange').value;
-        const m = document.getElementById('mRange').value;
-        const a = f / m;
-        const obj = document.getElementById('object');
+    function slamBrakes() {
+        // Car stops at 320px
+        car.style.left = "320px";
         
-        const duration = Math.max(0.2, 4 / a);
-        obj.style.transition = `left ${duration}s cubic-bezier(0.45, 0.05, 0.55, 0.95)`;
-        obj.style.left = "calc(100% - " + obj.offsetWidth + "px)";
-        
-        speakText("Pushing " + m + " kilograms with " + f + " Newtons of force.");
+        // Pizza keeps moving forward (Inertia!)
+        setTimeout(() => {
+            pizza.style.left = "180px"; // It slides off the car
+            pizza.style.transform = "rotate(20deg) translateY(40px)"; 
+            speakText("Stop! But the pizza keeps moving forward. Oops!");
+        }, 100);
     }
 
     function resetSim() {
-        const obj = document.getElementById('object');
-        obj.style.transition = "none";
-        obj.style.left = "0";
-        document.getElementById('fRange').value = 50;
-        document.getElementById('mRange').value = 10;
-        update();
-        window.speechSynthesis.cancel();
+        car.style.transition = "none";
+        pizza.style.transition = "none";
+        car.style.left = "20px";
+        pizza.style.left = "40px";
+        pizza.style.transform = "rotate(0deg) translateY(0px)";
+        setTimeout(() => {
+            car.style.transition = "left 0.8s ease-in-out";
+            pizza.style.transition = "left 0.5s ease-out, transform 0.5s ease-out";
+        }, 50);
     }
 
-    update();
+    function speakText(t) {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(t));
+    }
 </script>
 </body>
 </html>
